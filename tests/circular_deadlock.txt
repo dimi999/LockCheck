@@ -1,0 +1,23 @@
+thread 1
+lock 1
+lock 2
+unlock 2
+unlock 1
+
+thread 2
+lock 2
+lock 3
+unlock 3
+unlock 2
+
+thread 3
+lock 3
+lock 4
+unlock 4
+unlock 3
+
+thread 4
+lock 4
+lock 1
+unlock 1
+unlock 4

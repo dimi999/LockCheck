@@ -1,0 +1,15 @@
+thread 1
+lock 1
+unlock 1
+
+thread 2
+lock 2
+unlock 2
+
+thread 3
+wait 1
+wait 1
+post 1
+post 1
+
+semaphore 1 2
