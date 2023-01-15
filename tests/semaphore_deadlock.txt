@@ -1,0 +1,17 @@
+thread 1
+wait 1
+wait 1
+wait 1
+post 1
+post 1
+post 1
+
+thread 2
+wait 1
+wait 1
+wait 1
+post 1
+post 1
+post 1
+
+semaphore 1 4
