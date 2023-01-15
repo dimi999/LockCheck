@@ -5,7 +5,7 @@ struct Thread {
     int *max_res;
 
     int *instr_type;
-    int *intr_res;
+    int *instr_res;
 };
 
 struct Program {
