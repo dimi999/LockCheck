@@ -12,4 +12,6 @@ wait 1
 post 1
 post 1
 
+mutex 1
+mutex 2
 semaphore 1 2
