@@ -62,6 +62,7 @@ struct Program *read_file(char *file_name) {
     if (strlen(word[cnt_words]) > 0) {
         cnt_words++;
     }
+    free(buf);
 
     // Find the number of threads, mutexes and semaphores
     int cnt_threads = 0, cnt_mutexes = 0, cnt_semaphores = 0;

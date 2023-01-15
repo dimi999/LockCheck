@@ -85,6 +85,7 @@ int request(struct Banker *banker, int thread, int resource) {
     }
     banker->allocation[thread][resource]--;
     banker->available_resources[resource]++;
+    free(finished);
 
     // in this case, the state is unsafe
     if (cnt_finished != banker->cnt_threads) {
