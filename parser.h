@@ -1,6 +1,18 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-char *read_file(char *file_name);
+struct Thread {
+    int *max_res;
+
+    int *instr_type;
+    int *intr_res;
+};
+
+struct Program {
+    int *available;
+    struct Thread *threads;
+};
+
+struct Program *read_file(char *file_name);
 
 #endif

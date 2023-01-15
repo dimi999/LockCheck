@@ -1,10 +1,20 @@
 #ifndef BANKER_H
 #define BANKER_H
 
-void init(int no_threads, int no_resources, int **max_alloc);
+#include <pthread.h>
 
-int request(int thread, int resource);
+struct Banker {
+    pthread_mutex_t mu;
 
-void release(int thread, int resource);
+    int *available;
+    int **max_res;
+    int **alocation;
+};
+
+struct Banker* init(int no_threads, int *available, int **max_alloc);
+
+int request(struct Banker *banker, int thread, int resource);
+
+void release(struct Banker *banker, int thread, int resource);
 
 #endif
