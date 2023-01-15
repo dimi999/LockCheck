@@ -1,6 +1,7 @@
 #include "banker.h"
 #include <stdlib.h>
 
+// create initial banker state from a program
 struct Banker* init(struct Program *p) {
     struct Banker* banker = malloc(sizeof(struct Banker));
 

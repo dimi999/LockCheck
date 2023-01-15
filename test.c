@@ -7,7 +7,7 @@
 #include "parser.h"
 #include "banker.h"
 
-int CNT_STARVATION = 10;
+int CNT_STARVATION = 50;
 int DEBUG = 0;
 
 int testTrivialMutualExclusion(struct Program* p) {
@@ -82,10 +82,12 @@ pthread_mutex_t mtx;
 int deadlocked, starved;
 struct Banker *banker;
 
+// simulates locking, unlocking, waiting and posting for a thread
 void *run_thread(void *p) {
     struct ThreadInfo *tinfo = (struct ThreadInfo *)p;
 
-    for (int i = 0; i < tinfo->t->cnt_instructions; i++) {        
+    for (int i = 0; i < tinfo->t->cnt_instructions; i++) {
+        // keep running unless deadlock or starvation has been detected
         pthread_mutex_lock(&mtx);
         if (deadlocked || starved) {
             pthread_mutex_unlock(&mtx);
@@ -122,6 +124,7 @@ void *run_thread(void *p) {
                 }
             }
 
+            // retried too many times, likely to have starved
             if (cnt_retry >= CNT_STARVATION) {
                 pthread_mutex_lock(&mtx);
                 starved = 1;
@@ -143,6 +146,7 @@ void run_banker(struct Program *program) {
         tinfo[i].t = &(program->threads[i]);
     }
 
+    // start all threads in the program
     for (int i = 0; i < program->cnt_threads; i++) {
         pthread_create(&threads[i], NULL, run_thread, &tinfo[i]);
     }
@@ -171,6 +175,7 @@ int main(int argc, char **argv) {
         debug(program);
     }
 
+    // test trivial cases
     if (testTrivialMutualExclusion(program)) {
         puts("Programul nu poate avea deadlock sau starvation, a trecut check-ul Mutual Exclusion");
         destroy_program(program);
@@ -186,8 +191,8 @@ int main(int argc, char **argv) {
     srand(time(NULL));
     pthread_mutex_init(&mtx, NULL);
 
-    int iters = atoi(argv[2]);
-    int cnt_ok = 0, cnt_deadlock = 0, cnt_starvation = 0;
+    // run the program argv[2] times
+    int iters = atoi(argv[2]), cnt_ok = 0, cnt_deadlock = 0, cnt_starvation = 0;
     for (int i = 0; i < iters; i++) {
         banker = init(program);
         deadlocked = 0;
@@ -205,13 +210,13 @@ int main(int argc, char **argv) {
         destroy_banker(banker);
 
         if (DEBUG) {
-            char *res = "OK";
+            char *result = "OK";
             if (deadlocked) {
-                res = "Deadlock";
+                result = "Deadlock";
             } else if (starved) {
-                res = "Starved";
+                result = "Starved";
             }
-            printf("Run %d\n got %s\n", i + 1, res);
+            printf("Run %d\n got %s\n", i + 1, result);
         }
     }
 
@@ -221,8 +226,6 @@ int main(int argc, char **argv) {
     printf("%d starvations\n", cnt_starvation);
 
     pthread_mutex_destroy(&mtx);
-
     destroy_program(program);
-
     return 0;
 }
