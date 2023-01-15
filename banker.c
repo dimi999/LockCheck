@@ -20,10 +20,14 @@ struct Banker* init(int no_threads, int *available, int **max_alloc) {
 }
 
 int request(struct Banker *banker, int thread, int resource) {
-    
+    if(banker->max_alloc[thread][resource] - banker->alloc[thread][resource] > banker->available[resource]) 
+        return 1;
+    banker->available -= banker->max_alloc[thread][resource] - banker->alloc[thread][resource];
+    banker->alloc[thread][resource] = banker->max_alloc[thread][resource];
+            
     return 0;
 }
 
 void release(struct Banker *banker, int thread, int resource) {
-
+    banker->available[resource] += alloc[thread][resource];
 }

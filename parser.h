@@ -2,14 +2,17 @@
 #define PARSER_H
 
 struct Thread {
-    int *max_res;
+    int *max_resource_allocation; // max quantity of each resource that the thread will need
 
-    int *instr_type;
-    int *instr_res;
+    int cnt_instructions;
+    int *instruction_type; // +1 for request, -1 for release
+    int *instruction_resid; // id of the requested/released resource
 };
 
 struct Program {
-    int *available;
+    int cnt_threads, cnt_resources;
+
+    int *available_resources;
     struct Thread *threads;
 };
 

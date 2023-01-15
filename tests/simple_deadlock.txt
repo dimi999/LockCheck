@@ -9,3 +9,6 @@ lock 2
 lock 1
 unlock 1
 unlock 2
+
+mutex 1
+mutex 2

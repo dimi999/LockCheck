@@ -6,14 +6,14 @@
 
 int testTrivialMutualExclusion(struct Program *p) {
     int fv[100005];
-    int N = sizeof(p->threads) / sizeof(struct Thread);
+    int N = p->cnt_threads;
 
     for(int i = 0; i < N; i++)
         fv[i] = -1;
 
     for(int i = 0; i < N; i++) {
         struct Thread *crt = p->threads[i];
-        int szThread = sizeof(crt->instr_res) / sizeof(int);
+        int szThread = crt->cnt_instructions;
 
         for(int j = 0; j < szThread; j++) {
             if(fv[crt->instr_res[j]] != -1)
@@ -25,11 +25,11 @@ int testTrivialMutualExclusion(struct Program *p) {
 }
 
 int testTrivialHoldAndWait() {
-    int N = sizeof(p->threads) / sizeof(struct Thread);
+    int N = p->cnt_threads;
 
     for(int i = 0; i < N; i++) {
         struct Thread *crt = p->threads[i];
-        int szThread = sizeof(crt->instr_type) / sizeof(int);
+        int szThread = crt->cnt_instructions;
 
         for(int j = 0; j < szThread; j += 2) {
             int fst_type = crt->instr_type[j], fst_value = crt->instr_res[j];
@@ -49,19 +49,36 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    struct Program *p = read_file(argv[1]);
-    if(testTrivialMutualExclusion(p) == 1)
-        no_deadlock();
-    
-    if(testTrivialHoldAndWait(p) == 1)
-        no_deadlock();
-
-    char *buf = read_file(argv[1]);
-    if (buf == NULL) {
+    struct Program *program = read_file(argv[1]);
+    if (program == NULL) {
         return 1;
     }
 
-    puts(buf);
-    free(buf);
+    printf("Cnt threads: %d\n", program->cnt_threads);
+    printf("Cnt res: %d\n", program->cnt_resources);
+
+    for (int i = 0; i < program->cnt_resources; i++) {
+        printf("Resursa %d avem %d\n", i, program->available_resources[i]);
+    }
+
+    puts("=====");
+
+    for (int i = 0; i < program->cnt_threads; i++) {
+        printf("Threadul %d are %d instructiuni!\n", i, program->threads[i].cnt_instructions);
+
+        for (int j = 0; j < program->threads[i].cnt_instructions; j++) {
+            printf("%d %d\n", program->threads[i].instruction_type[j], 
+                            program->threads[i].instruction_resid[j]);
+        }
+
+        printf("Max alloc pt threadul %d:\n", i);
+        for (int j = 0; j < program->cnt_resources; j++) {
+            printf("%d %d\n", j, program->threads[i].max_resource_allocation[j]);
+        }
+        puts("=====");
+    }
+
+    // free program*
+
     return 0;
 }

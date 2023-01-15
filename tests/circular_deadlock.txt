@@ -21,3 +21,8 @@ lock 4
 lock 1
 unlock 1
 unlock 4
+
+mutex 1
+mutex 2
+mutex 3
+mutex 4
