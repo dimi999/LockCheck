@@ -89,9 +89,9 @@ struct Program *read_file(char *file_name) {
             // Count the number of instructions in this thread
             cnt_instructions = 0;
             for (int j = i + 2; j < cnt_words; j += 2) {
-                if (strcmp(word[i], "thread") == 0 ||
-                    strcmp(word[i], "mutex") == 0 ||
-                    strcmp(word[i], "semaphore") == 0) {
+                if (strcmp(word[j], "thread") == 0 ||
+                    strcmp(word[j], "mutex") == 0 ||
+                    strcmp(word[j], "semaphore") == 0) {
                     break;
                 } else {
                     cnt_instructions++;
@@ -103,7 +103,7 @@ struct Program *read_file(char *file_name) {
             int *current_allocation = malloc((cnt_mutexes + cnt_semaphores) * sizeof(int));
             for (int j = 0; j < (cnt_mutexes + cnt_semaphores); j++) {
                 current_allocation[j] = 0;
-                threads[current_thread].max_resource_allocation = 0;
+                threads[current_thread].max_resource_allocation[j] = 0;
             }
 
             threads[current_thread].cnt_instructions = cnt_instructions;
@@ -113,9 +113,9 @@ struct Program *read_file(char *file_name) {
             // Parse thread instructions one by one
             current_instruction = -1;
             for (int j = i + 2; j < cnt_words; j += 2) {
-                if (strcmp(word[i], "thread") == 0 ||
-                    strcmp(word[i], "mutex") == 0 ||
-                    strcmp(word[i], "semaphore") == 0) {
+                if (strcmp(word[j], "thread") == 0 ||
+                    strcmp(word[j], "mutex") == 0 ||
+                    strcmp(word[j], "semaphore") == 0) {
                     break;
                 }
 
