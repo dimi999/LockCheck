@@ -18,4 +18,6 @@ struct Program {
 
 struct Program *read_file(char *file_name);
 
+void destroy_program(struct Program *p);
+
 #endif

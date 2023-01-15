@@ -2,19 +2,23 @@
 #define BANKER_H
 
 #include <pthread.h>
+#include "parser.h"
 
 struct Banker {
-    pthread_mutex_t mu;
+    pthread_mutex_t mtx;
+    int cnt_resources, cnt_threads;
 
-    int *available;
-    int **max_res;
-    int **alocation;
+    int *available_resources;
+    int **max_allocation;
+    int **allocation;
 };
 
-struct Banker* init(int no_threads, int *available, int **max_alloc);
+struct Banker* init(struct Program *p);
 
 int request(struct Banker *banker, int thread, int resource);
 
 void release(struct Banker *banker, int thread, int resource);
+
+void destroy_banker(struct Banker *banker);
 
 #endif
