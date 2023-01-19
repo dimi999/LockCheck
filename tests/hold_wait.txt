@@ -1,0 +1,28 @@
+thread 1
+lock 1
+unlock 1
+lock 2
+unlock 2
+
+thread 2
+lock 2
+unlock 2
+lock 3
+unlock 3
+
+thread 3
+lock 3
+unlock 3
+lock 4
+unlock 4
+
+thread 4
+lock 4
+unlock 4
+lock 1
+unlock 1
+
+mutex 1
+mutex 2
+mutex 3
+mutex 4

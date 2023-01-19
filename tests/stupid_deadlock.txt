@@ -1,0 +1,11 @@
+thread 1
+lock 1
+lock 1
+unlock 1
+unlock 1
+
+thread 2
+lock 1
+unlock 1
+
+mutex 1

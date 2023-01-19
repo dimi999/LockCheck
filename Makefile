@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := exec
 
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -pthread
 
 DEPS = parser.h banker.h
 OBJ = parser.o banker.o test.o

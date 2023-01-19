@@ -62,8 +62,9 @@ struct Program *read_file(char *file_name) {
     if (strlen(word[cnt_words]) > 0) {
         cnt_words++;
     }
+    free(buf);
 
-    // Parse the words
+    // Find the number of threads, mutexes and semaphores
     int cnt_threads = 0, cnt_mutexes = 0, cnt_semaphores = 0;
     for (int i = 0; i < cnt_words; i++) {
         if (strcmp(word[i], "thread") == 0) {
@@ -153,7 +154,7 @@ struct Program *read_file(char *file_name) {
         }
     }
 
-    // Parse resource counts
+    // Parse available resource counts - mutexes have a count of 1, semaphores can have count >1
     int cnt_resources = -1;
     for (int i = 0; i < cnt_words; i++) {
         if (strcmp(word[i], "mutex") == 0) {
@@ -174,4 +175,17 @@ struct Program *read_file(char *file_name) {
     program->cnt_resources = cnt_resources + 1;
 
     return program;
+}
+
+void destroy_program(struct Program *p) {
+    for (int i = 0; i < p->cnt_threads; i++) {
+        free(p->threads[i].max_resource_allocation);
+        free(p->threads[i].instruction_type);
+        free(p->threads[i].instruction_resid);
+    }
+
+    free(p->threads);
+    free(p->available_resources);
+
+    free(p);
 }
