@@ -83,16 +83,10 @@ struct Banker *banker;
 void *run_thread(void *p) {
     struct ThreadInfo *tinfo = (struct ThreadInfo *)p;
 
+    int should_stop = 0;
     time_t start_time, current_time;
     time(&start_time);
     for (int i = 0; i < tinfo->t->cnt_instructions; i++) {
-        // keep running unless deadlock or starvation has been detected
-        pthread_mutex_lock(&mtx);
-        if (deadlocked || starved) {
-            pthread_mutex_unlock(&mtx);
-            break;
-        }
-        pthread_mutex_unlock(&mtx);
 
         if (tinfo->t->instruction_type[i] == 1) {
             // Sleep random number of milliseconds to simulate work
@@ -100,6 +94,15 @@ void *run_thread(void *p) {
             usleep(r * 1000);
 
             while (1) {
+                // keep running unless deadlock or starvation has been detected
+                pthread_mutex_lock(&mtx);
+                if (deadlocked || starved) {
+                    should_stop = 1;
+                    pthread_mutex_unlock(&mtx);
+                    break;
+                }
+                pthread_mutex_unlock(&mtx);
+
                 int res = request(banker, tinfo->id, tinfo->t->instruction_resid[i]);
                 if (DEBUG) {
                     printf("%d got %d on instruction %d\n", tinfo->id, r, i);
@@ -117,20 +120,24 @@ void *run_thread(void *p) {
                     double diff = current_time - start_time;
                     if (diff >= STARVATION_TIMEOUT) {
                         pthread_mutex_lock(&mtx);
-                        starved = 1;
+                        starved = should_stop = 1;
                         pthread_mutex_unlock(&mtx);
                         break;
                     }
                 }
                 if (res == 2) { // deadlock found
                     pthread_mutex_lock(&mtx);
-                    deadlocked = 1;
+                    deadlocked = should_stop = 1;
                     pthread_mutex_unlock(&mtx);
                     break;
                 }
             }
         } else {
             release(banker, tinfo->id, tinfo->t->instruction_resid[i]);
+        }
+
+        if (should_stop) {
+            break;
         }
     }
 
