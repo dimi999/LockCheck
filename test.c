@@ -7,7 +7,7 @@
 #include "parser.h"
 #include "banker.h"
 
-int CNT_STARVATION = 50;
+int STARVATION_TIMEOUT = 10;
 int DEBUG = 0;
 
 int testTrivialMutualExclusion(struct Program* p) {
@@ -50,14 +50,12 @@ int testTrivialHoldAndWait(struct Program* p) {
 void debug(struct Program *program) {
     printf("Cnt threads: %d\n", program->cnt_threads);
     printf("Cnt res: %d\n", program->cnt_resources);
-
     for (int i = 0; i < program->cnt_resources; i++) {
         printf("Resursa %d avem %d\n", i, program->available_resources[i]);
     }
 
-    puts("=====");
-
     for (int i = 0; i < program->cnt_threads; i++) {
+        puts("=====");
         printf("Threadul %d are %d instructiuni!\n", i, program->threads[i].cnt_instructions);
 
         for (int j = 0; j < program->threads[i].cnt_instructions; j++) {
@@ -69,7 +67,6 @@ void debug(struct Program *program) {
         for (int j = 0; j < program->cnt_resources; j++) {
             printf("%d %d\n", j, program->threads[i].max_resource_allocation[j]);
         }
-        puts("=====");
     }
 }
 
@@ -86,6 +83,8 @@ struct Banker *banker;
 void *run_thread(void *p) {
     struct ThreadInfo *tinfo = (struct ThreadInfo *)p;
 
+    time_t start_time, current_time;
+    time(&start_time);
     for (int i = 0; i < tinfo->t->cnt_instructions; i++) {
         // keep running unless deadlock or starvation has been detected
         pthread_mutex_lock(&mtx);
@@ -101,8 +100,7 @@ void *run_thread(void *p) {
             // Sleep random number of milliseconds to simulate work
             usleep(r * 1000);
 
-            int cnt_retry = 0;
-            while (cnt_retry < CNT_STARVATION) {
+            while (1) {
                 int r = request(banker, tinfo->id, tinfo->t->instruction_resid[i]);
                 if (DEBUG) {
                     printf("%d got %d on instruction %d\n", tinfo->id, r, i);
@@ -112,9 +110,18 @@ void *run_thread(void *p) {
                     break;
                 }
                 if (r == 1) { // request denied because of lack of available resources; try again later
-                    cnt_retry++;
                     r = rand() % 10 + 1;
                     usleep(r * 1000);
+
+                    // STARVATION_TIMEOUT elapsed, we declare the program starved
+                    time(&current_time);
+                    double diff = current_time - start_time;
+                    if (diff >= STARVATION_TIMEOUT) {
+                        pthread_mutex_lock(&mtx);
+                        starved = 1;
+                        pthread_mutex_unlock(&mtx);
+                        break;
+                    }
                 }
                 if (r == 2) { // deadlock found
                     pthread_mutex_lock(&mtx);
@@ -122,13 +129,6 @@ void *run_thread(void *p) {
                     pthread_mutex_unlock(&mtx);
                     break;
                 }
-            }
-
-            // retried too many times, likely to have starved
-            if (cnt_retry >= CNT_STARVATION) {
-                pthread_mutex_lock(&mtx);
-                starved = 1;
-                pthread_mutex_unlock(&mtx);
             }
         } else {
             release(banker, tinfo->id, tinfo->t->instruction_resid[i]);
