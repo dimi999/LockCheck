@@ -16,6 +16,7 @@ Tests that do not contain deadlocks:
 ```
 ./exec tests/semaphore_ok.txt 100
 ./exec tests/no_deadlock.txt 100
+./exec tests/hold_wait.txt 100
 ```
 
 ## Solution description
