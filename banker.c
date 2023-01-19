@@ -1,5 +1,6 @@
 #include "banker.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 // create initial banker state from a program
 struct Banker* init(struct Program *p) {
@@ -88,7 +89,7 @@ int request(struct Banker *banker, int thread, int resource) {
     free(finished);
 
     // in this case, the state is unsafe
-    if (cnt_finished != banker->cnt_threads) {
+    if (cnt_finished < banker->cnt_threads) {
         pthread_mutex_unlock(&banker->mtx);
         return 2;
     }

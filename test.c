@@ -95,21 +95,20 @@ void *run_thread(void *p) {
         pthread_mutex_unlock(&mtx);
 
         if (tinfo->t->instruction_type[i] == 1) {
-            int r = rand() % 10 + 1;
-
             // Sleep random number of milliseconds to simulate work
+            int r = rand() % 10 + 1;
             usleep(r * 1000);
 
             while (1) {
-                int r = request(banker, tinfo->id, tinfo->t->instruction_resid[i]);
+                int res = request(banker, tinfo->id, tinfo->t->instruction_resid[i]);
                 if (DEBUG) {
                     printf("%d got %d on instruction %d\n", tinfo->id, r, i);
                 }
 
-                if (r == 0) { // request granted
+                if (res == 0) { // request granted
                     break;
                 }
-                if (r == 1) { // request denied because of lack of available resources; try again later
+                if (res == 1) { // request denied because of lack of available resources; try again later
                     r = rand() % 10 + 1;
                     usleep(r * 1000);
 
@@ -123,7 +122,7 @@ void *run_thread(void *p) {
                         break;
                     }
                 }
-                if (r == 2) { // deadlock found
+                if (res == 2) { // deadlock found
                     pthread_mutex_lock(&mtx);
                     deadlocked = 1;
                     pthread_mutex_unlock(&mtx);
