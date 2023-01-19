@@ -12,8 +12,12 @@ make
 
 # Run tests
 echo ""
-echo "Running no_deadlock..."
-./exec tests/no_deadlock.txt $1
+echo "Running mutual_exclusion..."
+./exec tests/mutual_exclusion.txt $1
+
+echo ""
+echo "Running hold_wait.txt..."
+./exec tests/hold_wait.txt 100
 
 echo ""
 echo "Running semaphore_ok..."
